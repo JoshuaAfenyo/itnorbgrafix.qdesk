@@ -388,8 +388,8 @@
             <input type="number" id="width" min="0" step="1" value="1">
           </div>
           <div class="field">
-            <label for="height">Length</label>
-            <input type="number" id="height" min="0" step="1" value="1">
+            <label for="length">Length</label>
+            <input type="number" id="length" min="0" step="1" value="1">
           </div>
         </div>
       </div>
@@ -512,11 +512,11 @@ const AREA_UNIT_LABEL = { in: 'in²', ft: 'ft²', m: 'm²', cm: 'cm²' };
 
 let PRICE_UNIT = null; // the unit config.json's rates are priced per -- must be set explicitly by config, never guessed
 
-// Converts a width x height entered in `fromUnit` into an area expressed
+// Converts a width x length entered in `fromUnit` into an area expressed
 // in PRICE_UNIT, so rates never need manual unit conversion when a shop's
 // working unit already matches PRICE_UNIT (the common case: zero conversion).
-function toPriceUnitArea(width, height, fromUnit){
-  const area = width * height;
+function toPriceUnitArea(width, length, fromUnit){
+  const area = width * length;
   return area * AREA_FACTOR[PRICE_UNIT] / AREA_FACTOR[fromUnit];
 }
 
@@ -636,14 +636,17 @@ document.getElementById('unitToggle').addEventListener('click', e=>{
   calcLarge();
 });
 
-['width','height','qty'].forEach(id=>{
+['width','length','qty'].forEach(id=>{
   document.getElementById(id).addEventListener('input', calcLarge);
 });
 
 function calcLarge(){
   const mat = currentMaterial();
   if(!mat) return;
-  const qty = parseFloat(document.getElementById('qty').value) || 0;
+  // Math.max(0, ...) guards against negative input: parseFloat(...) || 0
+  // only replaces NaN/empty/zero, so a manually-typed "-10" would otherwise
+  // slip through and produce a negative "quoted price".
+  const qty = Math.max(0, parseFloat(document.getElementById('qty').value) || 0);
   let total, meta;
 
   if(isSheet(mat)){
@@ -653,17 +656,17 @@ function calcLarge(){
     meta = `${mat.material} · ${currentSize} · @ ${fmt(price)} per sheet`;
   } else {
     const service = effectiveService(mat);
-    const w = parseFloat(document.getElementById('width').value) || 0;
-    const h = parseFloat(document.getElementById('height').value) || 0;
-    const area = toPriceUnitArea(w, h, currentUnit);
+    const w = Math.max(0, parseFloat(document.getElementById('width').value) || 0);
+    const l = Math.max(0, parseFloat(document.getElementById('length').value) || 0);
+    const area = toPriceUnitArea(w, l, currentUnit);
 
     let rate = service === 'printCut' ? mat.printCut : mat.printOnly;
 
-    // Large-size rate (Flexi): applies once BOTH width and height exceed the
+    // Large-size rate (Flexi): applies once BOTH width and length exceed the
     // threshold, whichever unit the dimensions were entered in.
     let largeApplied = false;
     if(mat.largeSize && service === 'printOnly'){
-      if(toFeet(w, currentUnit) > mat.largeSize.aboveFt && toFeet(h, currentUnit) > mat.largeSize.aboveFt){
+      if(toFeet(w, currentUnit) > mat.largeSize.aboveFt && toFeet(l, currentUnit) > mat.largeSize.aboveFt){
         rate = mat.largeSize.rate;
         largeApplied = true;
       }
@@ -686,7 +689,7 @@ function renderDigital(filter=''){
     .filter(d => d.item.toLowerCase().includes(filter.toLowerCase()))
     .forEach(d=>{
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${d.item}</td><td class="price" style="text-align:right">${fmt(d.a4)}</td><td class="price" style="text-align:right">${fmt(d.a3)}</td>`;
+      tr.innerHTML = `<td>${escapeHTML(d.item)}</td><td class="price" style="text-align:right">${fmt(d.a4)}</td><td class="price" style="text-align:right">${fmt(d.a3)}</td>`;
       digitalTable.appendChild(tr);
     });
 }
@@ -701,7 +704,7 @@ function renderList(tableEl, data, filter=''){
     .filter(d => d.item.toLowerCase().includes(filter.toLowerCase()))
     .forEach(d=>{
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${d.item}</td><td class="price" style="text-align:right">${fmt(d.price)}</td>`;
+      tr.innerHTML = `<td>${escapeHTML(d.item)}</td><td class="price" style="text-align:right">${fmt(d.price)}</td>`;
       tableEl.appendChild(tr);
     });
 }
@@ -718,11 +721,11 @@ function renderPriceList(){
 
   largeFormatData.filter(m => !isSheet(m)).forEach(m=>{
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${m.material}</td>${cell(m.printOnly)}${cell(m.printCut)}`;
+    tr.innerHTML = `<td>${escapeHTML(m.material)}</td>${cell(m.printOnly)}${cell(m.printCut)}`;
     priceListTable.appendChild(tr);
     if(m.largeSize){
       const tr2 = document.createElement('tr');
-      tr2.innerHTML = `<td>${m.material} above ${m.largeSize.aboveFt}ft</td>${cell(m.largeSize.rate)}${cell(null)}`;
+      tr2.innerHTML = `<td>${escapeHTML(m.material)} above ${m.largeSize.aboveFt}ft</td>${cell(m.largeSize.rate)}${cell(null)}`;
       priceListTable.appendChild(tr2);
     }
   });
@@ -734,9 +737,9 @@ function renderPriceList(){
   if(sheets.length){
     const sizes = [...new Set(sheets.flatMap(m => Object.keys(m.sizes)))];
     document.getElementById('sheetPriceHead').innerHTML =
-      `<tr><th>Material</th>${sizes.map(s=>`<th style="text-align:right">${s}</th>`).join('')}</tr>`;
+      `<tr><th>Material</th>${sizes.map(s=>`<th style="text-align:right">${escapeHTML(s)}</th>`).join('')}</tr>`;
     document.getElementById('sheetPriceTable').innerHTML = sheets.map(m =>
-      `<tr><td>${m.material}</td>${sizes.map(s=>cell(m.sizes[s])).join('')}</tr>`).join('');
+      `<tr><td>${escapeHTML(m.material)}</td>${sizes.map(s=>cell(m.sizes[s])).join('')}</tr>`).join('');
   }
 }
 

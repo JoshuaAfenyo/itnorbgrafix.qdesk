@@ -90,8 +90,8 @@
       },
       {
         "item": "Heat Transfer (Opaque)",
-        "a4": 0,
-        "a3": 0
+        "a4": 4,
+        "a3": 8
       },
       {
         "item": "Heat Transfer (Transparent)",
