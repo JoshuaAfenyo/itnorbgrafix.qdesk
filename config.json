@@ -26,247 +26,218 @@
   },
   "pricing": {
     "priceUnit": "ft",
-    "largeFormat": {
-      "Print & Cut": [
-        {
-          "material": "Self Adhesive Vinyl (SAV)",
-          "price": 4.5
-        },
-        {
-          "material": "Transparent",
-          "price": 10
-        },
-        {
-          "material": "Flexi",
-          "price": 3
-        },
-        {
-          "material": "One Way Vision",
-          "price": 15
-        },
-        {
-          "material": "SAV Matte",
-          "price": 10
+    "largeFormat": [
+      {
+        "material": "Self Adhesive Vinyl (SAV)",
+        "printOnly": 2.8,
+        "printCut": 4.5
+      },
+      {
+        "material": "SAV Matte",
+        "printOnly": 7,
+        "printCut": 10
+      },
+      {
+        "material": "Transparent",
+        "printOnly": 7,
+        "printCut": 10
+      },
+      {
+        "material": "Flexi",
+        "printOnly": 3,
+        "largeSize": {
+          "aboveFt": 6,
+          "rate": 3.5
         }
-      ],
-      "Print Only": [
-        {
-          "material": "Self Adhesive Vinyl (SAV)",
-          "price": 2.8
-        },
-        {
-          "material": "Transparent",
-          "price": 7
-        },
-        {
-          "material": "Flexi",
-          "price": 3
-        },
-        {
-          "material": "One Way Vision",
-          "price": 15
-        },
-        {
-          "material": "SAV Matte",
-          "price": 7
+      },
+      {
+        "material": "One Way Vision",
+        "printOnly": 15
+      },
+      {
+        "material": "DTF",
+        "sizes": {
+          "A4": 4,
+          "A3": 8
         }
-      ]
-    },
-    "priceList": [
-      { "material": "Self Adhesive Vinyl (SAV)", "printOnly": 2.8, "printCut": 4.5 },
-      { "material": "Transparent", "printOnly": 7, "printCut": 10 },
-      { "material": "Flexi Glossy/Matte", "printOnly": 3, "printCut": null },
-      { "material": "Flexi Premium", "printOnly": null, "printCut": null },
-      { "material": "Flexi above 6ft", "printOnly": 3.5, "printCut": null },
-      { "material": "PVC Grey Back", "printOnly": null, "printCut": null },
-      { "material": "One Way Vision", "printOnly": 15, "printCut": null },
-      { "material": "Flag", "printOnly": null, "printCut": null },
-      { "material": "Heat Transfer", "printOnly": null, "printCut": null },
-      { "material": "Photopaper", "printOnly": null, "printCut": null },
-      { "material": "SAV Matte", "printOnly": 7, "printCut": 10 },
-      { "material": "Magnetic", "printOnly": null, "printCut": null },
-      { "material": "Cutting", "printOnly": null, "printCut": null },
-      { "material": "Frosted Vinyl", "printOnly": null, "printCut": null },
-      { "material": "Cutting Only", "printOnly": null, "printCut": null },
-      { "material": "BlueBack Paper", "printOnly": null, "printCut": null },
-      { "material": "Canvas Material", "printOnly": null, "printCut": null }
+      }
     ],
     "digital": [
       {
         "item": "Bond Paper / Art Paper",
-        "a4": 1,
-        "a3": 2
+        "a4": 0,
+        "a3": 0
       },
       {
         "item": "Art Card / Matt Card",
-        "a4": 1.8,
-        "a3": 3.6
+        "a4": 0,
+        "a3": 0
       },
       {
         "item": "Chromocoat",
-        "a4": 2,
-        "a3": 4
+        "a4": 0,
+        "a3": 0
       },
       {
         "item": "Envelope",
-        "a4": 1.8,
-        "a3": 3.6
+        "a4": 0,
+        "a3": 0
       },
       {
         "item": "DL Envelope",
-        "a4": 1,
-        "a3": 1.8
+        "a4": 0,
+        "a3": 0
       },
       {
         "item": "Heat Transfer (Opaque)",
-        "a4": 4,
-        "a3": 8
+        "a4": 0,
+        "a3": 0
       },
       {
         "item": "Heat Transfer (Transparent)",
-        "a4": 3.5,
-        "a3": 7
+        "a4": 0,
+        "a3": 0
       },
       {
         "item": "Special Card",
-        "a4": 4,
-        "a3": 8
+        "a4": 0,
+        "a3": 0
       },
       {
         "item": "Sticker Paper",
-        "a4": 2.5,
-        "a3": 5
+        "a4": 0,
+        "a3": 0
       },
       {
         "item": "Glossy Lamination",
-        "a4": 0.5,
-        "a3": 1
+        "a4": 0,
+        "a3": 0
       },
       {
         "item": "Matte Lamination",
-        "a4": 0.6,
-        "a3": 1.2
+        "a4": 0,
+        "a3": 0
       },
       {
         "item": "Invoice Book",
-        "a4": 45,
-        "a3": 90
+        "a4": 0,
+        "a3": 0
       }
     ],
     "souvenirs": [
       {
         "item": "Keyring, one side with doming",
-        "price": 10
+        "price": 0
       },
       {
         "item": "Keyring, double side with doming",
-        "price": 15
+        "price": 0
       },
       {
         "item": "Mugs",
-        "price": 15
+        "price": 0
       },
       {
         "item": "Plastic ID card, one side",
-        "price": 20
+        "price": 0
       },
       {
         "item": "Plastic ID card, double side",
-        "price": 25
+        "price": 0
       },
       {
         "item": "ID tag with printed lanyard",
-        "price": 25
+        "price": 0
       },
       {
         "item": "ID tag with lanyard, no print",
-        "price": 15
+        "price": 0
       },
       {
         "item": "Pens",
-        "price": 6
+        "price": 0
       },
       {
         "item": "Handkerchiefs with print",
-        "price": 4
+        "price": 0
       },
       {
         "item": "T-shirt, screen printing, double side",
-        "price": 40
+        "price": 0
       },
       {
         "item": "T-shirt, screen printing, one side",
-        "price": 35
+        "price": 0
       },
       {
         "item": "T-shirt, heat transfer, one side",
-        "price": 45
+        "price": 0
       },
       {
         "item": "T-shirt, heat transfer, two side",
-        "price": 50
+        "price": 0
       },
       {
         "item": "Magic mugs",
-        "price": 30
+        "price": 0
       },
       {
         "item": "White mugs",
-        "price": 15
+        "price": 0
       },
       {
         "item": "Gold mugs",
-        "price": 20
+        "price": 0
       },
       {
         "item": "Colored mugs",
-        "price": 20
+        "price": 0
       },
       {
         "item": "Mug print only, without mug",
-        "price": 5
+        "price": 0
       },
       {
         "item": "Plates",
-        "price": 30
+        "price": 0
       }
     ],
     "other": [
       {
         "item": "Business cards, front only",
-        "price": 60
+        "price": 0
       },
       {
         "item": "Business cards, front & back",
-        "price": 120
+        "price": 0
       },
       {
         "item": "Letterheads, bond paper, 1 ream",
-        "price": 350
+        "price": 0
       },
       {
         "item": "Letterheads, special paper, 1 ream",
-        "price": 500
+        "price": 0
       },
       {
         "item": "Roll-up display stand, without print",
-        "price": 300
+        "price": 0
       },
       {
         "item": "Roll-up display stand, with print (PVC)",
-        "price": 450
+        "price": 0
       },
       {
         "item": "Roll-up display stand, with print (Flexi)",
-        "price": 400
+        "price": 0
       },
       {
         "item": "Flag pole 1x4m",
-        "price": 1200
+        "price": 0
       },
       {
         "item": "Flag pole 1x4m, with print",
-        "price": 1500
+        "price": 0
       }
     ]
   }

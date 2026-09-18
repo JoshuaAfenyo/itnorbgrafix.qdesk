@@ -180,10 +180,26 @@
 
   .dim-row{
     display:grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap:12px;
   }
-  @media (max-width:520px){ .dim-row{grid-template-columns:1fr 1fr;} }
+  [hidden]{ display:none !important; }
+
+  /* Rounded pill selector (Print Only / Print & Cut, DTF sizes) */
+  .pill-group{display:flex; gap:6px; flex-wrap:wrap;}
+  .pill-group button{
+    font-family:inherit;
+    font-size:13px;
+    font-weight:700;
+    padding:8px 14px;
+    border:1.5px solid var(--ink);
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:20px;
+    cursor:pointer;
+  }
+  .pill-group button.on{background:var(--tape); border-color:var(--tape-dark);}
+  @media (max-width:520px){ .pill-group button{padding:10px 16px;} }
 
   .toggle-group{
     display:flex;
@@ -205,19 +221,6 @@
   }
   .toggle-group button:last-child{border-right:none;}
   .toggle-group button.on{background:var(--cut); color:#fff;}
-
-  .tier-tabs{display:flex; gap:6px; margin-bottom:18px; flex-wrap:wrap;}
-  .tier-tabs button{
-    font-family:inherit;
-    font-size:13px;
-    font-weight:700;
-    padding:8px 14px;
-    border:1.5px solid var(--ink);
-    background:var(--paper);
-    border-radius:20px;
-    cursor:pointer;
-  }
-  .tier-tabs button.on{background:var(--tape); border-color:var(--tape-dark);}
 
   .result{
     margin-top:22px;
@@ -353,36 +356,53 @@
 
   <!-- LARGE FORMAT -->
   <section id="large" class="panel active">
-    <div class="tier-tabs" id="tierTabs"></div>
     <div class="card">
       <div class="field">
         <label for="material">Material</label>
         <select id="material"></select>
       </div>
 
-      <div class="field">
-        <label for="unit">Dimension unit</label>
-        <div class="toggle-group" id="unitToggle">
-          <button data-unit="in" class="on">Inches</button>
-          <button data-unit="ft">Feet</button>
-          <button data-unit="m">Meters</button>
-          <button data-unit="cm">Centimeters</button>
+      <!-- Only shown for materials that offer both services -->
+      <div class="field" id="serviceField" hidden>
+        <label>Service</label>
+        <div class="pill-group" id="serviceToggle">
+          <button data-service="printOnly" class="on">Print Only</button>
+          <button data-service="printCut">Print &amp; Cut</button>
         </div>
       </div>
 
-      <div class="dim-row">
+      <!-- Priced per area (everything except DTF) -->
+      <div id="areaFields">
         <div class="field">
-          <label for="width">Width</label>
-          <input type="number" id="width" min="0" step="0.01" value="1">
+          <label>Dimension unit</label>
+          <div class="toggle-group" id="unitToggle">
+            <button data-unit="in" class="on">Inches</button>
+            <button data-unit="ft">Feet</button>
+            <button data-unit="m">Meters</button>
+            <button data-unit="cm">Centimeters</button>
+          </div>
         </div>
-        <div class="field">
-          <label for="height">Length</label>
-          <input type="number" id="height" min="0" step="0.01" value="1">
+        <div class="dim-row">
+          <div class="field">
+            <label for="width">Width</label>
+            <input type="number" id="width" min="0" step="1" value="1">
+          </div>
+          <div class="field">
+            <label for="height">Length</label>
+            <input type="number" id="height" min="0" step="1" value="1">
+          </div>
         </div>
-        <div class="field">
-          <label for="qty">Quantity</label>
-          <input type="number" id="qty" min="1" step="1" value="1">
-        </div>
+      </div>
+
+      <!-- Priced per sheet (DTF) -->
+      <div class="field" id="sheetField" hidden>
+        <label>Sheet size</label>
+        <div class="pill-group" id="sizeToggle"></div>
+      </div>
+
+      <div class="field">
+        <label for="qty">Quantity</label>
+        <input type="number" id="qty" min="1" step="1" value="1">
       </div>
 
       <div class="result">
@@ -427,7 +447,7 @@
       <div class="grid">
         <div class="field">
           <label for="convValue">Value</label>
-          <input type="number" id="convValue" min="0" step="0.01" value="1">
+          <input type="number" id="convValue" min="0" step="1" value="1">
         </div>
         <div class="field">
           <label for="convUnit">Unit</label>
@@ -461,6 +481,13 @@
         </thead>
         <tbody id="priceListTable"></tbody>
       </table>
+      <div id="sheetPriceBlock" hidden>
+        <div class="section-title">Per sheet</div>
+        <table>
+          <thead id="sheetPriceHead"></thead>
+          <tbody id="sheetPriceTable"></tbody>
+        </table>
+      </div>
     </div>
   </section>
 
@@ -515,54 +542,91 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
 });
 
 // ---------- APP STATE (populated from config.json) ----------
-let largeFormatData = {};
+let largeFormatData = [];      // ordered list of materials, straight from config.json
 let digitalData = [];
 let souvenirData = [];
 let otherData = [];
-let priceListData = [];
-let currentTier = "";
 let currentUnit = "in";
+let preferredService = "printOnly"; // what the person last picked; only applies to materials that offer it
+let currentSize = null;             // sheet size for per-sheet materials (DTF)
 
-const tierTabsEl = document.getElementById('tierTabs');
+const SERVICE_LABEL = { printOnly: 'Print Only', printCut: 'Print & Cut' };
+
 const materialSelect = document.getElementById('material');
+const serviceField   = document.getElementById('serviceField');
+const areaFields     = document.getElementById('areaFields');
+const sheetField     = document.getElementById('sheetField');
+const sizeToggle     = document.getElementById('sizeToggle');
 
-function buildTierTabs(){
-  tierTabsEl.innerHTML = '';
-  Object.keys(largeFormatData).forEach((tier, i)=>{
-    if(i === 0) currentTier = tier;
-    const b = document.createElement('button');
-    b.textContent = tier;
-    if(tier === currentTier) b.classList.add('on');
-    b.addEventListener('click', ()=>{
-      currentTier = tier;
-      document.querySelectorAll('#tierTabs button').forEach(x=>x.classList.remove('on'));
-      b.classList.add('on');
-      populateMaterials();
-      calcLarge();
-    });
-    tierTabsEl.appendChild(b);
-  });
+// A material is priced one of two ways:
+//   per sheet  -> has a "sizes" object   (e.g. DTF: {A4: 4, A3: 8})
+//   per area   -> has "printOnly", and optionally "printCut"
+const isSheet     = m => !!(m && m.sizes);
+const hasPrintCut = m => !!(m && typeof m.printCut === 'number');
+const currentMaterial = () => largeFormatData[materialSelect.value];
+
+// Print & Cut only counts when the material actually offers it.
+// Otherwise the quote is always Print Only, whatever was picked before.
+function effectiveService(mat){
+  return (hasPrintCut(mat) && preferredService === 'printCut') ? 'printCut' : 'printOnly';
 }
 
 function populateMaterials(){
-  const items = largeFormatData[currentTier] || [];
-  const prevName = materialSelect.options[materialSelect.selectedIndex]
-    ? materialSelect.options[materialSelect.selectedIndex].textContent
-    : null;
-
   materialSelect.innerHTML = '';
-  items.forEach((m, i)=>{
+  largeFormatData.forEach((m, i)=>{
     const opt = document.createElement('option');
     opt.value = i;
     opt.textContent = m.material;
     materialSelect.appendChild(opt);
   });
+}
 
-  if(prevName){
-    const matchIdx = items.findIndex(m => m.material === prevName);
-    if(matchIdx !== -1) materialSelect.value = matchIdx;
+// Shows only the controls that make sense for the selected material.
+function syncLargeControls(){
+  const mat = currentMaterial();
+  if(!mat) return;
+  const sheet = isSheet(mat);
+
+  areaFields.hidden   = sheet;
+  sheetField.hidden   = !sheet;
+  serviceField.hidden = sheet || !hasPrintCut(mat);
+
+  if(!serviceField.hidden){
+    const svc = effectiveService(mat);
+    document.querySelectorAll('#serviceToggle button').forEach(b=>{
+      b.classList.toggle('on', b.dataset.service === svc);
+    });
+  }
+
+  if(sheet){
+    const sizes = Object.keys(mat.sizes);
+    if(!sizes.includes(currentSize)) currentSize = sizes[0];
+    sizeToggle.innerHTML = '';
+    sizes.forEach(s=>{
+      const b = document.createElement('button');
+      b.dataset.size = s;
+      b.textContent = s;
+      b.classList.toggle('on', s === currentSize);
+      sizeToggle.appendChild(b);
+    });
   }
 }
+
+materialSelect.addEventListener('input', ()=>{ syncLargeControls(); calcLarge(); });
+
+document.getElementById('serviceToggle').addEventListener('click', e=>{
+  if(e.target.tagName !== 'BUTTON') return;
+  preferredService = e.target.dataset.service;
+  syncLargeControls();
+  calcLarge();
+});
+
+sizeToggle.addEventListener('click', e=>{
+  if(e.target.tagName !== 'BUTTON') return;
+  currentSize = e.target.dataset.size;
+  syncLargeControls();
+  calcLarge();
+});
 
 document.getElementById('unitToggle').addEventListener('click', e=>{
   if(e.target.tagName !== 'BUTTON') return;
@@ -572,34 +636,46 @@ document.getElementById('unitToggle').addEventListener('click', e=>{
   calcLarge();
 });
 
-['material','width','height','qty'].forEach(id=>{
+['width','height','qty'].forEach(id=>{
   document.getElementById(id).addEventListener('input', calcLarge);
 });
 
 function calcLarge(){
-  const idx = materialSelect.value;
-  const mat = (largeFormatData[currentTier] || [])[idx];
+  const mat = currentMaterial();
   if(!mat) return;
-  const w = parseFloat(document.getElementById('width').value) || 0;
-  const h = parseFloat(document.getElementById('height').value) || 0;
   const qty = parseFloat(document.getElementById('qty').value) || 0;
-  const area = toPriceUnitArea(w, h, currentUnit);
+  let total, meta;
 
-  // Flexi surcharge: GH₵3.50/ft² instead of the base GH₵3/ft² once both
-  // width AND height exceed 6ft, regardless of which unit was entered in.
-  let rate = mat.price;
-  if(mat.material === 'Flexi'){
-    const wFt = toFeet(w, currentUnit);
-    const hFt = toFeet(h, currentUnit);
-    if(wFt > 6 && hFt > 6) rate = 3.5;
+  if(isSheet(mat)){
+    // Per-sheet pricing (DTF): size x quantity, no dimensions involved.
+    const price = mat.sizes[currentSize];
+    total = price * qty;
+    meta = `${mat.material} · ${currentSize} · @ ${fmt(price)} per sheet`;
+  } else {
+    const service = effectiveService(mat);
+    const w = parseFloat(document.getElementById('width').value) || 0;
+    const h = parseFloat(document.getElementById('height').value) || 0;
+    const area = toPriceUnitArea(w, h, currentUnit);
+
+    let rate = service === 'printCut' ? mat.printCut : mat.printOnly;
+
+    // Large-size rate (Flexi): applies once BOTH width and height exceed the
+    // threshold, whichever unit the dimensions were entered in.
+    let largeApplied = false;
+    if(mat.largeSize && service === 'printOnly'){
+      if(toFeet(w, currentUnit) > mat.largeSize.aboveFt && toFeet(h, currentUnit) > mat.largeSize.aboveFt){
+        rate = mat.largeSize.rate;
+        largeApplied = true;
+      }
+    }
+
+    total = area * rate * qty;
+    meta = `${mat.material} · ${SERVICE_LABEL[service]} · @ ${fmt(rate)}/${AREA_UNIT_LABEL[PRICE_UNIT]}`
+         + (largeApplied ? ` (over ${mat.largeSize.aboveFt}ft)` : '');
   }
 
-  const total = area * rate * qty;
-
   document.getElementById('largeResult').textContent = fmt(total);
-  const priceUnitLabel = AREA_UNIT_LABEL[PRICE_UNIT];
-  document.getElementById('largeMeta').textContent =
-    `${mat.material} · ${currentTier} · @ ${fmt(rate)}/${priceUnitLabel}`;
+  document.getElementById('largeMeta').textContent = meta;
 }
 
 // ---------- DIGITAL PRESS ----------
@@ -634,17 +710,34 @@ document.getElementById('souvSearch').addEventListener('input', e=>{
   renderList(otherTable, otherData, e.target.value);
 });
 
-// ---------- PRICE LIST (static reference table) ----------
+// ---------- PRICE LIST (generated from the same largeFormat data) ----------
 const priceListTable = document.getElementById('priceListTable');
 function renderPriceList(){
   priceListTable.innerHTML = '';
-  priceListData.forEach(d=>{
+  const cell = v => `<td class="price" style="text-align:right">${typeof v === 'number' ? fmt(v) : '-'}</td>`;
+
+  largeFormatData.filter(m => !isSheet(m)).forEach(m=>{
     const tr = document.createElement('tr');
-    const printOnly = (d.printOnly === null || d.printOnly === undefined) ? '-' : fmt(d.printOnly);
-    const printCut = (d.printCut === null || d.printCut === undefined) ? '-' : fmt(d.printCut);
-    tr.innerHTML = `<td>${d.material}</td><td class="price" style="text-align:right">${printOnly}</td><td class="price" style="text-align:right">${printCut}</td>`;
+    tr.innerHTML = `<td>${m.material}</td>${cell(m.printOnly)}${cell(m.printCut)}`;
     priceListTable.appendChild(tr);
+    if(m.largeSize){
+      const tr2 = document.createElement('tr');
+      tr2.innerHTML = `<td>${m.material} above ${m.largeSize.aboveFt}ft</td>${cell(m.largeSize.rate)}${cell(null)}`;
+      priceListTable.appendChild(tr2);
+    }
   });
+
+  // Per-sheet materials (DTF) get their own small table: A4 / A3 columns.
+  const sheets = largeFormatData.filter(isSheet);
+  const block = document.getElementById('sheetPriceBlock');
+  block.hidden = sheets.length === 0;
+  if(sheets.length){
+    const sizes = [...new Set(sheets.flatMap(m => Object.keys(m.sizes)))];
+    document.getElementById('sheetPriceHead').innerHTML =
+      `<tr><th>Material</th>${sizes.map(s=>`<th style="text-align:right">${s}</th>`).join('')}</tr>`;
+    document.getElementById('sheetPriceTable').innerHTML = sheets.map(m =>
+      `<tr><td>${m.material}</td>${sizes.map(s=>cell(m.sizes[s])).join('')}</tr>`).join('');
+  }
 }
 
 // ---------- UNIT CONVERTER ----------
@@ -777,21 +870,20 @@ function initApp(config){
     });
   }
 
-  largeFormatData = pricing.largeFormat || {};
+  largeFormatData = Array.isArray(pricing.largeFormat) ? pricing.largeFormat : [];
   digitalData = pricing.digital || [];
   souvenirData = pricing.souvenirs || [];
   otherData = pricing.other || [];
-  priceListData = pricing.priceList || [];
 
-  buildTierTabs();
   populateMaterials();
+  syncLargeControls();
   calcLarge();
   renderDigital();
   renderList(souvTable, souvenirData);
   renderList(otherTable, otherData);
   renderConverter();
   document.getElementById('priceListNote').textContent =
-    `Prices are per square ${PRICE_UNIT === 'in' ? 'inch' : PRICE_UNIT === 'ft' ? 'foot' : PRICE_UNIT === 'm' ? 'meter' : 'centimeter'} (${AREA_UNIT_LABEL[PRICE_UNIT]}). "-" means not priced yet.`;
+    `Prices are per square ${PRICE_UNIT === 'in' ? 'inch' : PRICE_UNIT === 'ft' ? 'foot' : PRICE_UNIT === 'm' ? 'meter' : 'centimeter'} (${AREA_UNIT_LABEL[PRICE_UNIT]}). "-" means not offered.`;
   renderPriceList();
 
   document.getElementById('appRoot').style.display = '';
