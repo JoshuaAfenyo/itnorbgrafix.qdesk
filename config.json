@@ -27,218 +27,58 @@
   "pricing": {
     "priceUnit": "ft",
     "largeFormat": [
-      {
-        "material": "Self Adhesive Vinyl (SAV)",
-        "printOnly": 2.8,
-        "printCut": 4.5
-      },
-      {
-        "material": "SAV Matte",
-        "printOnly": 7,
-        "printCut": 10
-      },
-      {
-        "material": "Transparent",
-        "printOnly": 7,
-        "printCut": 10
-      },
-      {
-        "material": "Flexi",
-        "printOnly": 3,
-        "largeSize": {
-          "aboveFt": 6,
-          "rate": 3.5
-        }
-      },
-      {
-        "material": "One Way Vision",
-        "printOnly": 15
-      },
-      {
-        "material": "DTF",
-        "sizes": {
-          "A4": 4,
-          "A3": 8
-        }
-      }
+      { "material": "Self Adhesive Vinyl (SAV)", "printOnly": 2.8, "printCut": 4.5 },
+      { "material": "SAV Matte", "printOnly": 7, "printCut": 10 },
+      { "material": "Transparent", "printOnly": 7, "printCut": 10 },
+      { "material": "Flexi", "printOnly": 3, "largeSize": { "aboveFt": 6, "rate": 3.5 } },
+      { "material": "One Way Vision", "printOnly": 15 },
+      { "material": "DTF", "sizes": { "A4": 4, "A3": 8 } }
     ],
     "digital": [
-      {
-        "item": "Bond Paper / Art Paper",
-        "a4": 0,
-        "a3": 0
-      },
-      {
-        "item": "Art Card / Matt Card",
-        "a4": 0,
-        "a3": 0
-      },
-      {
-        "item": "Chromocoat",
-        "a4": 0,
-        "a3": 0
-      },
-      {
-        "item": "Envelope",
-        "a4": 0,
-        "a3": 0
-      },
-      {
-        "item": "DL Envelope",
-        "a4": 0,
-        "a3": 0
-      },
-      {
-        "item": "Heat Transfer (Opaque)",
-        "a4": 4,
-        "a3": 8
-      },
-      {
-        "item": "Heat Transfer (Transparent)",
-        "a4": 0,
-        "a3": 0
-      },
-      {
-        "item": "Special Card",
-        "a4": 0,
-        "a3": 0
-      },
-      {
-        "item": "Sticker Paper",
-        "a4": 0,
-        "a3": 0
-      },
-      {
-        "item": "Glossy Lamination",
-        "a4": 0,
-        "a3": 0
-      },
-      {
-        "item": "Matte Lamination",
-        "a4": 0,
-        "a3": 0
-      },
-      {
-        "item": "Invoice Book",
-        "a4": 0,
-        "a3": 0
-      }
+      { "item": "Bond Paper / Art Paper", "a4": 0, "a3": 0 },
+      { "item": "Art Card / Matt Card", "a4": 0, "a3": 0 },
+      { "item": "Chromocoat", "a4": 0, "a3": 0 },
+      { "item": "Envelope", "a4": 0, "a3": 0 },
+      { "item": "DL Envelope", "a4": 0, "a3": 0 },
+      { "item": "Heat Transfer (Opaque)", "a4": 4, "a3": 8 },
+      { "item": "Heat Transfer (Transparent)", "a4": 0, "a3": 0 },
+      { "item": "Special Card", "a4": 0, "a3": 0 },
+      { "item": "Sticker Paper", "a4": 0, "a3": 0 },
+      { "item": "Glossy Lamination", "a4": 0, "a3": 0 },
+      { "item": "Matte Lamination", "a4": 0, "a3": 0 },
+      { "item": "Invoice Book", "a4": 0, "a3": 0 }
     ],
     "souvenirs": [
-      {
-        "item": "Keyring, one side with doming",
-        "price": 0
-      },
-      {
-        "item": "Keyring, double side with doming",
-        "price": 0
-      },
-      {
-        "item": "Mugs",
-        "price": 0
-      },
-      {
-        "item": "Plastic ID card, one side",
-        "price": 0
-      },
-      {
-        "item": "Plastic ID card, double side",
-        "price": 0
-      },
-      {
-        "item": "ID tag with printed lanyard",
-        "price": 0
-      },
-      {
-        "item": "ID tag with lanyard, no print",
-        "price": 0
-      },
-      {
-        "item": "Pens",
-        "price": 0
-      },
-      {
-        "item": "Handkerchiefs with print",
-        "price": 0
-      },
-      {
-        "item": "T-shirt, screen printing, double side",
-        "price": 0
-      },
-      {
-        "item": "T-shirt, screen printing, one side",
-        "price": 0
-      },
-      {
-        "item": "T-shirt, heat transfer, one side",
-        "price": 0
-      },
-      {
-        "item": "T-shirt, heat transfer, two side",
-        "price": 0
-      },
-      {
-        "item": "Magic mugs",
-        "price": 0
-      },
-      {
-        "item": "White mugs",
-        "price": 0
-      },
-      {
-        "item": "Gold mugs",
-        "price": 0
-      },
-      {
-        "item": "Colored mugs",
-        "price": 0
-      },
-      {
-        "item": "Mug print only, without mug",
-        "price": 0
-      },
-      {
-        "item": "Plates",
-        "price": 0
-      }
+      { "item": "Keyring, one side with doming", "price": 0 },
+      { "item": "Keyring, double side with doming", "price": 0 },
+      { "item": "Mugs", "price": 0 },
+      { "item": "Plastic ID card, one side", "price": 0 },
+      { "item": "Plastic ID card, double side", "price": 0 },
+      { "item": "ID tag with printed lanyard", "price": 0 },
+      { "item": "ID tag with lanyard, no print", "price": 0 },
+      { "item": "Pens", "price": 0 },
+      { "item": "Handkerchiefs with print", "price": 0 },
+      { "item": "T-shirt, screen printing, double side", "price": 0 },
+      { "item": "T-shirt, screen printing, one side", "price": 0 },
+      { "item": "T-shirt, heat transfer, one side", "price": 0 },
+      { "item": "T-shirt, heat transfer, two side", "price": 0 },
+      { "item": "Magic mugs", "price": 0 },
+      { "item": "White mugs", "price": 0 },
+      { "item": "Gold mugs", "price": 0 },
+      { "item": "Colored mugs", "price": 0 },
+      { "item": "Mug print only, without mug", "price": 0 },
+      { "item": "Plates", "price": 0 }
     ],
     "other": [
-      {
-        "item": "Business cards, front only",
-        "price": 0
-      },
-      {
-        "item": "Business cards, front & back",
-        "price": 0
-      },
-      {
-        "item": "Letterheads, bond paper, 1 ream",
-        "price": 0
-      },
-      {
-        "item": "Letterheads, special paper, 1 ream",
-        "price": 0
-      },
-      {
-        "item": "Roll-up display stand, without print",
-        "price": 0
-      },
-      {
-        "item": "Roll-up display stand, with print (PVC)",
-        "price": 0
-      },
-      {
-        "item": "Roll-up display stand, with print (Flexi)",
-        "price": 0
-      },
-      {
-        "item": "Flag pole 1x4m",
-        "price": 0
-      },
-      {
-        "item": "Flag pole 1x4m, with print",
-        "price": 0
-      }
+      { "item": "Business cards, front only", "price": 0 },
+      { "item": "Business cards, front & back", "price": 0 },
+      { "item": "Letterheads, bond paper, 1 ream", "price": 0 },
+      { "item": "Letterheads, special paper, 1 ream", "price": 0 },
+      { "item": "Roll-up display stand, without print", "price": 0 },
+      { "item": "Roll-up display stand, with print (PVC)", "price": 0 },
+      { "item": "Roll-up display stand, with print (Flexi)", "price": 0 },
+      { "item": "Flag pole 1x4m", "price": 0 },
+      { "item": "Flag pole 1x4m, with print", "price": 0 }
     ]
   }
 }
