@@ -30,175 +30,67 @@
       "Print & Cut": [
         {
           "material": "Self Adhesive Vinyl (SAV)",
-          "general": 6.1059,
-          "designer": 5.4944
+          "price": 4.5
         },
         {
           "material": "Transparent",
-          "general": 7.1338,
-          "designer": 6.4201
+          "price": 10
         },
         {
-          "material": "Flexi Glossy/Matte",
-          "general": 4.4758,
-          "designer": 4.027
-        },
-        {
-          "material": "Flexi Premium",
-          "general": 7.2862,
-          "designer": 6.5576
-        },
-        {
-          "material": "PVC Grey Back",
-          "general": 8.9219,
-          "designer": 8.0297
+          "material": "Flexi",
+          "price": 3
         },
         {
           "material": "One Way Vision",
-          "general": 11.2546,
-          "designer": 10.1292
-        },
-        {
-          "material": "Flag",
-          "general": 7.1561,
-          "designer": 4.9768
-        },
-        {
-          "material": "Heat Transfer",
-          "general": 18.0762,
-          "designer": 16.6868
-        },
-        {
-          "material": "Photopaper",
-          "general": 8.9219,
-          "designer": 4.9768
+          "price": 15
         },
         {
           "material": "SAV Matte",
-          "general": 8.0669,
-          "designer": 7.2602
-        },
-        {
-          "material": "Magnetic",
-          "general": 23.7918,
-          "designer": 22.6022
-        },
-        {
-          "material": "Cutting",
-          "general": 4.5539,
-          "designer": 4.0985
-        },
-        {
-          "material": "Frosted Vinyl",
-          "general": 7.8996,
-          "designer": 7.1097
-        },
-        {
-          "material": "BlueBack Paper",
-          "general": 8.9219,
-          "designer": 4.9768
+          "price": 10
         }
       ],
       "Print Only": [
         {
           "material": "Self Adhesive Vinyl (SAV)",
-          "general": 4.4602,
-          "designer": 4.0139
+          "price": 2.8
         },
         {
           "material": "Transparent",
-          "general": 5.0576,
-          "designer": 4.5146
+          "price": 7
         },
         {
-          "material": "Flexi Glossy/Matte",
-          "general": 4.4758,
-          "designer": 4.027
-        },
-        {
-          "material": "Flexi Premium",
-          "general": 7.2862,
-          "designer": 6.5576
-        },
-        {
-          "material": "PVC Grey Back",
-          "general": 8.9219,
-          "designer": 8.0297
+          "material": "Flexi",
+          "price": 3
         },
         {
           "material": "One Way Vision",
-          "general": 11.2546,
-          "designer": 10.1292
-        },
-        {
-          "material": "Flag",
-          "general": 7.1561,
-          "designer": 4.9768
-        },
-        {
-          "material": "Heat Transfer",
-          "general": 16.6357,
-          "designer": 15.8039
-        },
-        {
-          "material": "Photopaper",
-          "general": 8.9219,
-          "designer": 4.9768
+          "price": 15
         },
         {
           "material": "SAV Matte",
-          "general": 7.1375,
-          "designer": 6.4238
-        },
-        {
-          "material": "Magnetic",
-          "general": 23.7918,
-          "designer": 22.6022
-        },
-        {
-          "material": "Cutting",
-          "general": 1.8587,
-          "designer": 1.6729
-        },
-        {
-          "material": "Frosted Vinyl",
-          "general": 7.4349,
-          "designer": 6.6914
-        },
-        {
-          "material": "Cutting Only",
-          "general": 1.8587,
-          "designer": 1.6729
-        },
-        {
-          "material": "Blueback Paper",
-          "general": 7.342,
-          "designer": 4.9563
-        },
-        {
-          "material": "Canvas Material",
-          "general": 11.2546,
-          "designer": 10.1292
-        }
-      ],
-      "Metallic & White": [
-        {
-          "material": "Self Adhesive Vinyl (SAV)",
-          "general": 5.283,
-          "designer": 4.408
-        },
-        {
-          "material": "Transparent",
-          "general": 5.7783,
-          "designer": 4.5731
-        },
-        {
-          "material": "SAV Matte",
-          "general": 6.934,
-          "designer": 6.5873
+          "price": 7
         }
       ]
     },
+    "priceList": [
+      { "material": "Self Adhesive Vinyl (SAV)", "printOnly": 2.8, "printCut": 4.5 },
+      { "material": "Transparent", "printOnly": 7, "printCut": 10 },
+      { "material": "Flexi Glossy/Matte", "printOnly": 3, "printCut": null },
+      { "material": "Flexi Premium", "printOnly": null, "printCut": null },
+      { "material": "Flexi above 6ft", "printOnly": 3.5, "printCut": null },
+      { "material": "PVC Grey Back", "printOnly": null, "printCut": null },
+      { "material": "One Way Vision", "printOnly": 15, "printCut": null },
+      { "material": "Flag", "printOnly": null, "printCut": null },
+      { "material": "Heat Transfer", "printOnly": null, "printCut": null },
+      { "material": "Photopaper", "printOnly": null, "printCut": null },
+      { "material": "SAV Matte", "printOnly": 7, "printCut": 10 },
+      { "material": "Magnetic", "printOnly": null, "printCut": null },
+      { "material": "Cutting", "printOnly": null, "printCut": null },
+      { "material": "Frosted Vinyl", "printOnly": null, "printCut": null },
+      { "material": "Cutting Only", "printOnly": null, "printCut": null },
+      { "material": "BlueBack Paper", "printOnly": null, "printCut": null },
+      { "material": "Canvas Material", "printOnly": null, "printCut": null }
+    ],
     "digital": [
       {
         "item": "Bond Paper / Art Paper",

@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quote Desk</title>
 <meta name="theme-color" content="#1b1b1b" id="themeColorMeta">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
   :root{
     --ink:#1b1b1b;
@@ -176,9 +180,10 @@
 
   .dim-row{
     display:grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap:12px;
   }
+  @media (max-width:520px){ .dim-row{grid-template-columns:1fr 1fr;} }
 
   .toggle-group{
     display:flex;
@@ -341,6 +346,7 @@
   <button class="tab-btn" data-panel="digital">Digital Press</button>
   <button class="tab-btn" data-panel="souvenirs">Souvenirs &amp; Other</button>
   <button class="tab-btn" data-panel="converter">Unit Converter</button>
+  <button class="tab-btn" data-panel="pricelist">Price List</button>
 </nav>
 
 <main>
@@ -349,18 +355,9 @@
   <section id="large" class="panel active">
     <div class="tier-tabs" id="tierTabs"></div>
     <div class="card">
-      <div class="grid">
-        <div class="field">
-          <label for="material">Material</label>
-          <select id="material"></select>
-        </div>
-        <div class="field">
-          <label for="rateType">Rate</label>
-          <div class="toggle-group" id="rateToggle">
-            <button data-rate="general" class="on">General</button>
-            <button data-rate="designer">Designer</button>
-          </div>
-        </div>
+      <div class="field">
+        <label for="material">Material</label>
+        <select id="material"></select>
       </div>
 
       <div class="field">
@@ -381,6 +378,10 @@
         <div class="field">
           <label for="height">Length</label>
           <input type="number" id="height" min="0" step="0.01" value="1">
+        </div>
+        <div class="field">
+          <label for="qty">Quantity</label>
+          <input type="number" id="qty" min="1" step="1" value="1">
         </div>
       </div>
 
@@ -446,6 +447,23 @@
     </div>
   </section>
 
+  <!-- PRICE LIST -->
+  <section id="pricelist" class="panel">
+    <div class="card">
+      <div class="sub" id="priceListNote" style="margin-bottom:14px;"></div>
+      <table>
+        <thead>
+          <tr>
+            <th>Material</th>
+            <th style="text-align:right">Print Only</th>
+            <th style="text-align:right">Print &amp; Cut</th>
+          </tr>
+        </thead>
+        <tbody id="priceListTable"></tbody>
+      </table>
+    </div>
+  </section>
+
 </main>
 
 <footer id="footerText"></footer>
@@ -475,6 +493,17 @@ function toPriceUnitArea(width, height, fromUnit){
   return area * AREA_FACTOR[PRICE_UNIT] / AREA_FACTOR[fromUnit];
 }
 
+// Converts a single dimension entered in `fromUnit` into feet, regardless
+// of PRICE_UNIT -- used for surcharge thresholds that are defined in feet
+// (e.g. the Flexi large-size surcharge) no matter what unit the shop is
+// currently working in.
+function toFeet(value, fromUnit){
+  if(fromUnit === 'ft') return value; // no conversion needed, avoids float noise at exact boundaries
+  const metersPerUnit = 1 / Math.sqrt(AREA_FACTOR[fromUnit]);
+  const feetPerMeter = Math.sqrt(AREA_FACTOR.ft);
+  return Math.round(value * metersPerUnit * feetPerMeter * 1e6) / 1e6;
+}
+
 // ---------- TABS ----------
 document.querySelectorAll('.tab-btn').forEach(btn=>{
   btn.addEventListener('click', ()=>{
@@ -490,8 +519,8 @@ let largeFormatData = {};
 let digitalData = [];
 let souvenirData = [];
 let otherData = [];
+let priceListData = [];
 let currentTier = "";
-let currentRate = "general";
 let currentUnit = "in";
 
 const tierTabsEl = document.getElementById('tierTabs');
@@ -516,22 +545,24 @@ function buildTierTabs(){
 }
 
 function populateMaterials(){
+  const items = largeFormatData[currentTier] || [];
+  const prevName = materialSelect.options[materialSelect.selectedIndex]
+    ? materialSelect.options[materialSelect.selectedIndex].textContent
+    : null;
+
   materialSelect.innerHTML = '';
-  (largeFormatData[currentTier] || []).forEach((m, i)=>{
+  items.forEach((m, i)=>{
     const opt = document.createElement('option');
     opt.value = i;
     opt.textContent = m.material;
     materialSelect.appendChild(opt);
   });
-}
 
-document.getElementById('rateToggle').addEventListener('click', e=>{
-  if(e.target.tagName !== 'BUTTON') return;
-  currentRate = e.target.dataset.rate;
-  document.querySelectorAll('#rateToggle button').forEach(b=>b.classList.remove('on'));
-  e.target.classList.add('on');
-  calcLarge();
-});
+  if(prevName){
+    const matchIdx = items.findIndex(m => m.material === prevName);
+    if(matchIdx !== -1) materialSelect.value = matchIdx;
+  }
+}
 
 document.getElementById('unitToggle').addEventListener('click', e=>{
   if(e.target.tagName !== 'BUTTON') return;
@@ -541,7 +572,7 @@ document.getElementById('unitToggle').addEventListener('click', e=>{
   calcLarge();
 });
 
-['material','width','height'].forEach(id=>{
+['material','width','height','qty'].forEach(id=>{
   document.getElementById(id).addEventListener('input', calcLarge);
 });
 
@@ -551,16 +582,24 @@ function calcLarge(){
   if(!mat) return;
   const w = parseFloat(document.getElementById('width').value) || 0;
   const h = parseFloat(document.getElementById('height').value) || 0;
+  const qty = parseFloat(document.getElementById('qty').value) || 0;
   const area = toPriceUnitArea(w, h, currentUnit);
-  const rate = mat[currentRate];
-  const total = area * rate;
+
+  // Flexi surcharge: GH₵3.50/ft² instead of the base GH₵3/ft² once both
+  // width AND height exceed 6ft, regardless of which unit was entered in.
+  let rate = mat.price;
+  if(mat.material === 'Flexi'){
+    const wFt = toFeet(w, currentUnit);
+    const hFt = toFeet(h, currentUnit);
+    if(wFt > 6 && hFt > 6) rate = 3.5;
+  }
+
+  const total = area * rate * qty;
 
   document.getElementById('largeResult').textContent = fmt(total);
-  const unitLabel = {in:'in', ft:'ft', m:'m', cm:'cm'}[currentUnit];
   const priceUnitLabel = AREA_UNIT_LABEL[PRICE_UNIT];
   document.getElementById('largeMeta').textContent =
-    `${mat.material} · ${currentTier} · ${currentRate === 'general' ? 'General' : 'Designer'} rate `
-    + `· ${w}${unitLabel} × ${h}${unitLabel} = ${area.toFixed(4)} ${priceUnitLabel} @ ${fmt(rate)}/${priceUnitLabel}`;
+    `${mat.material} · ${currentTier} · @ ${fmt(rate)}/${priceUnitLabel}`;
 }
 
 // ---------- DIGITAL PRESS ----------
@@ -594,6 +633,19 @@ document.getElementById('souvSearch').addEventListener('input', e=>{
   renderList(souvTable, souvenirData, e.target.value);
   renderList(otherTable, otherData, e.target.value);
 });
+
+// ---------- PRICE LIST (static reference table) ----------
+const priceListTable = document.getElementById('priceListTable');
+function renderPriceList(){
+  priceListTable.innerHTML = '';
+  priceListData.forEach(d=>{
+    const tr = document.createElement('tr');
+    const printOnly = (d.printOnly === null || d.printOnly === undefined) ? '-' : fmt(d.printOnly);
+    const printCut = (d.printCut === null || d.printCut === undefined) ? '-' : fmt(d.printCut);
+    tr.innerHTML = `<td>${d.material}</td><td class="price" style="text-align:right">${printOnly}</td><td class="price" style="text-align:right">${printCut}</td>`;
+    priceListTable.appendChild(tr);
+  });
+}
 
 // ---------- UNIT CONVERTER ----------
 const toMeters = {in: 0.0254, ft: 0.3048, m: 1, cm: 0.01, mm: 0.001};
@@ -635,27 +687,6 @@ function applyTheme(theme){
   if(theme && theme.ink){
     document.getElementById('themeColorMeta').setAttribute('content', theme.ink);
   }
-}
-
-function applyManifest(config){
-  // Manifest name/short_name/colors are generated from config at runtime,
-  // so a shop only ever needs to edit config.json -- never manifest.json --
-  // to rebrand the installed-app name and icon background.
-  const manifest = {
-    name: (config.shopName ? config.shopName + " Quote Desk" : "Quote Desk"),
-    short_name: config.shopName || "Quote Desk",
-    start_url: "./index.html",
-    display: "standalone",
-    background_color: (config.theme && config.theme.paper) || "#f6f4ee",
-    theme_color: (config.theme && config.theme.ink) || "#1b1b1b",
-    icons: [{ src: "icon.svg", sizes: "any", type: "image/svg+xml" }]
-  };
-  const blob = new Blob([JSON.stringify(manifest)], {type: "application/json"});
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('link');
-  link.rel = "manifest";
-  link.href = url;
-  document.head.appendChild(link);
 }
 
 const ICONS = {
@@ -721,7 +752,6 @@ function initApp(config){
   LOCALE = config.locale || "en-US";
 
   applyTheme(config.theme);
-  applyManifest(config);
 
   const pricing = config.pricing || {};
 
@@ -751,6 +781,7 @@ function initApp(config){
   digitalData = pricing.digital || [];
   souvenirData = pricing.souvenirs || [];
   otherData = pricing.other || [];
+  priceListData = pricing.priceList || [];
 
   buildTierTabs();
   populateMaterials();
@@ -759,6 +790,9 @@ function initApp(config){
   renderList(souvTable, souvenirData);
   renderList(otherTable, otherData);
   renderConverter();
+  document.getElementById('priceListNote').textContent =
+    `Prices are per square ${PRICE_UNIT === 'in' ? 'inch' : PRICE_UNIT === 'ft' ? 'foot' : PRICE_UNIT === 'm' ? 'meter' : 'centimeter'} (${AREA_UNIT_LABEL[PRICE_UNIT]}). "-" means not priced yet.`;
+  renderPriceList();
 
   document.getElementById('appRoot').style.display = '';
 }
