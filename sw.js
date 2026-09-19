@@ -1,6 +1,6 @@
 // Bump this string every time you push updated prices or files.
 // A new CACHE name is what tells the service worker "there's a new version".
-const CACHE = "qdesk-itnorb-v13";
+const CACHE = "qdesk-itnorb-v14";
 
 const FILES_TO_CACHE = [
   "./",
